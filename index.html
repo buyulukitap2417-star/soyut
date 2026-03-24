@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soyut Matematik: İnteraktif Sınav</title>
+    <title>Soyut Matematik: İspat ve İşlem Sınavı</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         window.MathJax = {
@@ -17,10 +17,11 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono&display=swap');
         
-        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f1f5f9; overflow-x: hidden; }
+        
+        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
         .tab-content.active { display: block; }
         
         @keyframes fadeIn {
@@ -31,219 +32,344 @@
         .gap-input {
             background: #0f172a;
             border: 2px solid #1e293b;
-            border-radius: 8px;
-            padding: 4px 12px;
-            color: #f1f5f9;
+            border-radius: 12px;
+            padding: 8px 16px;
+            color: #2dd4bf;
             outline: none;
             transition: all 0.3s;
             text-align: center;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            min-width: 120px;
         }
 
         .gap-input.correct {
             border-color: #10b981;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.05);
+            pointer-events: none;
         }
 
         .gap-input.wrong {
             border-color: #ef4444;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-            background: rgba(239, 68, 68, 0.1);
-            animation: shake 0.3s;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+            animation: shake 0.4s;
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
         }
 
-        .congrats-modal {
+        .symbol-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+        .symbol-btn:hover { background: #334155; color: #2dd4bf; }
+
+        .congrats-panel {
             display: none;
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #10b981;
-            color: #020617;
-            padding: 3rem;
-            border-radius: 2rem;
-            z-index: 100;
-            text-align: center;
-            box-shadow: 0 0 100px rgba(16, 185, 129, 0.5);
+            inset: 0;
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        .tab-btn.active {
-            background: #2dd4bf;
-            color: #020617;
-        }
+        .progress-bar-inner { transition: width 0.5s ease-in-out; }
     </style>
 </head>
-<body class="text-slate-300 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
-    <header class="p-8 text-center border-b border-slate-800 bg-slate-900/50">
-        <h1 class="text-4xl font-black text-white tracking-tighter">MATH<span class="text-teal-400">QUIZ</span></h1>
-        <p class="text-slate-500 text-sm mt-2">Boşlukları doldur ve Enter'a bas. Bol şans!</p>
+    <!-- ÜST PANEL -->
+    <header class="p-6 bg-slate-900/80 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter text-white">SOYUT<span class="text-teal-400 italic">EXAM</span></h1>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">İşlem ve İspat Odaklı Sınav</p>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="switchTab('ispat')" id="btn-ispat" class="tab-btn active px-5 py-2 rounded-xl border border-slate-700 font-bold text-sm transition-all hover:bg-slate-800">1. İspat Metotları</button>
+                <button onclick="switchTab('kume')" id="btn-kume" class="tab-btn px-5 py-2 rounded-xl border border-slate-700 font-bold text-sm transition-all hover:bg-slate-800">2. Kümeler Kuramı</button>
+                <button onclick="switchTab('fonk')" id="btn-fonk" class="tab-btn px-5 py-2 rounded-xl border border-slate-700 font-bold text-sm transition-all hover:bg-slate-800">3. Fonksiyonlar</button>
+            </div>
+        </div>
     </header>
 
-    <!-- NAVİGASYON -->
-    <nav class="flex justify-center gap-4 p-6">
-        <button onclick="switchTab('ispat')" id="btn-ispat" class="tab-btn active px-6 py-2 rounded-full border border-slate-700 font-bold transition-all">İspat Yöntemleri</button>
-        <button onclick="switchTab('kume')" id="btn-kume" class="tab-btn px-6 py-2 rounded-full border border-slate-700 font-bold transition-all">Kümeler</button>
-        <button onclick="switchTab('fonk')" id="btn-fonk" class="tab-btn px-6 py-2 rounded-full border border-slate-700 font-bold transition-all">Fonksiyonlar</button>
-    </nav>
+    <!-- SEMBOL PANELİ (Floating) -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 bg-slate-900/90 p-3 rounded-2xl border border-slate-700 shadow-2xl">
+        <p class="text-[10px] text-slate-500 font-bold text-center mb-1">SEMBOL EKLE</p>
+        <div class="grid grid-cols-3 gap-2">
+            <button onclick="insertSymbol('¬')" class="symbol-btn">¬</button>
+            <button onclick="insertSymbol('≡')" class="symbol-btn">≡</button>
+            <button onclick="insertSymbol('⇒')" class="symbol-btn">⇒</button>
+            <button onclick="insertSymbol('⊆')" class="symbol-btn">⊆</button>
+            <button onclick="insertSymbol('∩')" class="symbol-btn">∩</button>
+            <button onclick="insertSymbol('∪')" class="symbol-btn">∪</button>
+            <button onclick="insertSymbol('∅')" class="symbol-btn">∅</button>
+            <button onclick="insertSymbol('∈')" class="symbol-btn">∈</button>
+            <button onclick="insertSymbol('∀')" class="symbol-btn">∀</button>
+        </div>
+    </div>
 
-    <main class="flex-1 max-w-4xl mx-auto w-full p-6 relative">
+    <!-- ANA İÇERİK -->
+    <main class="flex-1 max-w-5xl mx-auto w-full p-8 pb-32">
         
-        <!-- BÖLÜM 1: İSPAT YÖNTEMLERİ -->
-        <div id="tab-ispat" class="tab-content active space-y-12">
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-teal-400 font-bold mb-6 italic underline">Etkinlik 1: Çelişki Yöntemi</h3>
-                <p class="text-lg leading-relaxed">
-                    $\sqrt{2}$ sayısının rasyonel olmadığını ispatlamak için, başlangıçta bu sayının rasyonel olduğunu varsayarak bir 
-                    <input type="text" class="gap-input" data-answer="çelişki" placeholder="..."> 
-                    bulmaya çalışırız.
+        <!-- İSPAT METOTLARI -->
+        <div id="tab-ispat" class="tab-content active space-y-8">
+            <h2 class="text-2xl font-bold text-teal-400 mb-8">Bölüm 1: İspat Stratejileri ve İşlemleri</h2>
+            
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 1: Karelerin Tekliği (Olmayan Ergi)</h4>
+                <p class="leading-relaxed">
+                    "$n^2$ çift ise $n$ çifttir" önermesini ispatlamak için ters zıttını kurarız. 
+                    Kabul edelim ki $n$ tek olsun, yani bir $k \in \mathbb{Z}$ için $n = 2k+1$. 
+                    Bu durumda $n^2 = (2k+1)^2 = 4k^2 + 4k + 1$. İşlem sonucunda $n^2 = 2($
+                    <input type="text" class="gap-input w-48" data-answer="2k^2+2k" placeholder="..."> 
+                    $) + 1$ elde edilir. Bu da $n^2$'nin tek olduğunu ispatlar.
                 </p>
             </div>
 
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-teal-400 font-bold mb-6 italic underline">Etkinlik 2: Olmayan Ergi</h3>
-                <p class="text-lg leading-relaxed">
-                    $P \Rightarrow Q$ önermesini ispatlamak yerine, bu önermeye denk olan 
-                    $\neg Q \Rightarrow$ <input type="text" class="gap-input w-24" data-answer="¬P" placeholder="..."> 
-                    ifadesini ispatlama yöntemine Olmayan Ergi denir. (İpucu: ¬ sembolünü kopyalayabilirsin)
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 2: Çelişki Yöntemi Şablonu</h4>
+                <p class="leading-relaxed">
+                    $P \Rightarrow Q$ gerektirmesini çelişki yöntemiyle ispatlamak için 
+                    $P \land$ <input type="text" class="gap-input w-24" data-answer="¬Q" placeholder="..."> 
+                    ifadesinin doğru olduğu varsayılır ve bir tutarsızlığa ulaşılmaya çalışılır.
                 </p>
             </div>
 
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-teal-400 font-bold mb-6 italic underline">Etkinlik 3: Tümevarım</h3>
-                <p class="text-lg leading-relaxed">
-                    Tümevarım yönteminde, $n=k$ için önermenin doğru olduğunu kabul ettiğimiz adıma 
-                    <input type="text" class="gap-input" data-answer="hipotez" placeholder="..."> 
-                    adımı denir.
-                </p>
-            </div>
-        </div>
-
-        <!-- BÖLÜM 2: KÜMELER -->
-        <div id="tab-kume" class="tab-content space-y-12">
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-indigo-400 font-bold mb-6 italic underline">Etkinlik 1: De Morgan Yasası</h3>
-                <p class="text-lg leading-relaxed">
-                    Kümelerde De Morgan yasasına göre, $(A \cup B)^c$ ifadesi 
-                    $A^c \cap$ <input type="text" class="gap-input w-24" data-answer="Bc" placeholder="..."> 
-                    ifadesine eşittir.
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 3: Tümevarım Adımı</h4>
+                <p class="leading-relaxed">
+                    $1+2+...+n = \frac{n(n+1)}{2}$ ispatında, $n=k$ için formülün doğru olduğunu varsaydığımızda, 
+                    $n=k+1$ için sol tarafa eklememiz gereken terim <input type="text" class="gap-input w-24" data-answer="k+1" placeholder="..."> 
+                    olacaktır.
                 </p>
             </div>
 
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-indigo-400 font-bold mb-6 italic underline">Etkinlik 2: Küme Eşitliği</h3>
-                <p class="text-lg leading-relaxed">
-                    $A=B$ olduğunu ispatlamak için hem $A \subseteq B$ hem de 
-                    <input type="text" class="gap-input w-32" data-answer="B⊆A" placeholder="..."> 
-                    olduğu gösterilmelidir.
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 4: İrrasyonellik Çelişkisi</h4>
+                <p class="leading-relaxed">
+                    $\sqrt{2} = a/b$ varsayımında $a^2 = 2b^2$ elde edilir. Bu eşitlik bize $a$ sayısının 
+                    <input type="text" class="gap-input w-24" data-answer="çift" placeholder="..."> 
+                    olması gerektiğini söyler.
                 </p>
             </div>
 
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-indigo-400 font-bold mb-6 italic underline">Etkinlik 3: Kartezyen Çarpım</h3>
-                <p class="text-lg leading-relaxed">
-                    Elemanları sıralı ikililerden oluşan $A \times B$ kümesine 
-                    <input type="text" class="gap-input" data-answer="kartezyen" placeholder="..."> 
-                    çarpım kümesi denir.
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 5: Olmayan Ergi Denkliği</h4>
+                <p class="leading-relaxed">
+                    Mantıksal olarak $P \Rightarrow Q$ önermesi her zaman 
+                    <input type="text" class="gap-input w-32" data-answer="¬Q⇒¬P" placeholder="..."> 
+                    önermesine denktir.
                 </p>
             </div>
         </div>
 
-        <!-- BÖLÜM 3: FONKSİYONLAR -->
-        <div id="tab-fonk" class="tab-content space-y-12">
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-rose-400 font-bold mb-6 italic underline">Etkinlik 1: Birebir Fonksiyon</h3>
-                <p class="text-lg leading-relaxed">
-                    Eğer her $x_1, x_2$ için $f(x_1) = f(x_2) \Rightarrow x_1 = x_2$ oluyorsa, bu fonksiyona 
-                    <input type="text" class="gap-input" data-answer="birebir" placeholder="..."> 
-                    fonksiyon denir.
+        <!-- KÜMELER KURAMI -->
+        <div id="tab-kume" class="tab-content space-y-8">
+            <h2 class="text-2xl font-bold text-indigo-400 mb-8">Bölüm 2: Küme İşlemleri ve İspat Basamakları</h2>
+
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 1: De Morgan İspatı</h4>
+                <p class="leading-relaxed">
+                    $x \in (A \cap B)^c$ ise tanım gereği $x \notin (A \cap B)$ olur. 
+                    Bu da $x \notin A$ <input type="text" class="gap-input w-24" data-answer="veya" placeholder="..."> $x \notin B$ anlamına gelir.
                 </p>
             </div>
 
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-rose-400 font-bold mb-6 italic underline">Etkinlik 2: Örten Fonksiyon</h3>
-                <p class="text-lg leading-relaxed">
-                    Değer kümesindeki her elemanın en az bir ters görüntüsü varsa, yani açıkta eleman kalmıyorsa bu fonksiyona 
-                    <input type="text" class="gap-input" data-answer="örten" placeholder="..."> 
-                    denir.
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 2: Alt Küme Tanımı</h4>
+                <p class="leading-relaxed">
+                    $A \subseteq B$ olduğunu ispatlamak için kullanılan sembolik mantık ifadesi şudur: 
+                    $\forall x, (x \in A \Rightarrow$ <input type="text" class="gap-input w-24" data-answer="x∈B" placeholder="..."> $)$.
                 </p>
             </div>
 
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
-                <h3 class="text-rose-400 font-bold mb-6 italic underline">Etkinlik 3: Görüntü Kümesi</h3>
-                <p class="text-lg leading-relaxed">
-                    Bir $f: X \to Y$ fonksiyonunda, $X$ kümesinin elemanlarının eşleştiği elemanların oluşturduğu kümeye 
-                    <input type="text" class="gap-input" data-answer="görüntü" placeholder="..."> 
-                    kümesi denir.
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 3: Boş Küme ve Kesişim</h4>
+                <p class="leading-relaxed">
+                    Herhangi bir $A$ kümesi için $A \cap A^c =$ <input type="text" class="gap-input w-24" data-answer="∅" placeholder="..."> olur.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 4: Kartezyen Eleman Sayısı</h4>
+                <p class="leading-relaxed">
+                    $s(A)=5$ ve $s(B)=4$ ise $s(A \times B \times A) =$ <input type="text" class="gap-input w-24" data-answer="100" placeholder="..."> olur.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 5: Birleşim Dağılma Özelliği</h4>
+                <p class="leading-relaxed">
+                    $A \cup (B \cap C) = (A \cup B) \cap ($<input type="text" class="gap-input w-32" data-answer="A∪C" placeholder="...">$)$.
+                </p>
+            </div>
+        </div>
+
+        <!-- FONKSİYONLAR -->
+        <div id="tab-fonk" class="tab-content space-y-8">
+            <h2 class="text-2xl font-bold text-rose-400 mb-8">Bölüm 3: Fonksiyonel İspatlar ve Görüntüler</h2>
+
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 1: Birebir Fonksiyon İspatı</h4>
+                <p class="leading-relaxed">
+                    $f(x) = 3x+5$ fonksiyonunun birebir olduğunu ispatlamak için $f(x_1) = f(x_2)$ varsayılır. 
+                    $3x_1+5 = 3x_2+5$ eşitliğinden sadeleştirmelerle <input type="text" class="gap-input w-24" data-answer="x1=x2" placeholder="..."> 
+                    sonucuna ulaşılmalıdır.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 2: Örtenlik Şartı</h4>
+                <p class="leading-relaxed">
+                    $f: X \to Y$ fonksiyonu için $f(X) =$ <input type="text" class="gap-input w-24" data-answer="Y" placeholder="..."> 
+                    oluyorsa fonksiyona örten denir.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 3: Birleşimin Görüntüsü</h4>
+                <p class="leading-relaxed">
+                    Her zaman doğru olan küme görüntüsü ilişkisi şudur: $f(A \cup B) = f(A) \cup$ 
+                    <input type="text" class="gap-input w-24" data-answer="f(B)" placeholder="..."> .
+                </p>
+            </div>
+
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 4: Ters Görüntü Tanımı</h4>
+                <p class="leading-relaxed">
+                    $x \in f^{-1}(B) \iff$ <input type="text" class="gap-input w-32" data-answer="f(x)∈B" placeholder="..."> .
+                </p>
+            </div>
+
+            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800 space-y-6">
+                <h4 class="text-white font-bold italic">Soru 5: Sabit Fonksiyon ve Güvercin Yuvası</h4>
+                <p class="leading-relaxed">
+                    $|X|=11$ ve $|Y|=10$ olsun. $f: X \to Y$ bir fonksiyon ise, en az 
+                    <input type="text" class="gap-input w-24" data-answer="2" placeholder="..."> 
+                    tane eleman aynı görüntüye sahiptir.
                 </p>
             </div>
         </div>
 
     </main>
 
-    <!-- TEBRİKLER MODAL -->
-    <div id="congrats" class="congrats-modal">
-        <h2 class="text-5xl font-black mb-4">TEBRİKLER! 🎉</h2>
-        <p class="text-xl font-bold">Tüm soruları doğru cevapladın. <br> Sınava hazırsın!</p>
-        <button onclick="location.reload()" class="mt-8 bg-slate-900 text-white px-8 py-3 rounded-full font-bold">Tekrar Çöz</button>
+    <!-- KONTROL PANELİ (Alt bar) -->
+    <div class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-slate-800 p-4 flex items-center justify-center gap-8 z-40">
+        <div class="w-64 h-3 bg-slate-800 rounded-full overflow-hidden">
+            <div id="progress-bar" class="progress-bar-inner h-full bg-teal-500 w-0"></div>
+        </div>
+        <div class="text-sm font-bold"><span id="correct-count">0</span> / 15 Soruda Başarı</div>
     </div>
 
-    <footer class="p-8 text-center text-slate-600 text-xs">
-        Soyut Matematik İnteraktif Sınav Sistemi v1.0
-    </footer>
+    <!-- CONGRATS MODAL -->
+    <div id="congrats" class="congrats-panel">
+        <div class="text-center space-y-6 scale-up animate-bounce">
+            <h2 class="text-6xl font-black text-teal-400">MUHTEŞEM! 🏆</h2>
+            <p class="text-xl text-slate-400">Soyut Matematiğin dilini artık çözdün.</p>
+            <button onclick="location.reload()" class="bg-teal-500 text-slate-950 px-10 py-4 rounded-2xl font-black hover:bg-teal-400 transition">YENİDEN BAŞLA</button>
+        </div>
+    </div>
 
     <script>
+        let lastFocusedInput = null;
+
+        // Tab Değiştirme
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active');
+                b.classList.remove('bg-teal-500');
+                b.classList.remove('text-slate-900');
+            });
             
-            document.getElementById('tab-' + id).classList.add('active');
-            document.getElementById('btn-' + id).classList.add('active');
+            const targetContent = document.getElementById('tab-' + id);
+            const targetBtn = document.getElementById('btn-' + id);
+            
+            targetContent.classList.add('active');
+            targetBtn.classList.add('active');
+            targetBtn.classList.add('bg-teal-500');
+            targetBtn.classList.add('text-slate-900');
+
+            if (window.MathJax) MathJax.typesetPromise();
         }
 
-        // Girişleri kontrol etme
+        // Sembol Ekleme
+        function insertSymbol(sym) {
+            if (lastFocusedInput && !lastFocusedInput.disabled) {
+                const start = lastFocusedInput.selectionStart;
+                const end = lastFocusedInput.selectionEnd;
+                const text = lastFocusedInput.value;
+                lastFocusedInput.value = text.substring(0, start) + sym + text.substring(end);
+                lastFocusedInput.focus();
+                lastFocusedInput.selectionStart = lastFocusedInput.selectionEnd = start + sym.length;
+            }
+        }
+
+        // Girişleri Dinle
         document.querySelectorAll('.gap-input').forEach(input => {
-            input.addEventListener('keypress', function (e) {
+            input.addEventListener('focus', function() {
+                lastFocusedInput = this;
+            });
+
+            input.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    checkAnswer(this);
+                    validateAnswer(this);
                 }
             });
         });
 
-        function checkAnswer(el) {
-            const userAnswer = el.value.trim().toLowerCase();
-            const correctAnswer = el.getAttribute('data-answer').toLowerCase();
+        function validateAnswer(el) {
+            const rawUser = el.value.trim().toLowerCase();
+            const rawCorrect = el.getAttribute('data-answer').toLowerCase();
             
-            // Özel karakter temizliği (boşluklar vs)
-            const cleanUser = userAnswer.replace(/\s/g, '');
-            const cleanCorrect = correctAnswer.replace(/\s/g, '');
-
-            if (cleanUser === cleanCorrect) {
+            // Normalize: Boşlukları ve küçük farkları (1-1 vs birebir gibi) temizle
+            const clean = (s) => s.replace(/\s+/g, '').replace(/birebir/g, '1-1').replace(/neg/g, '¬');
+            
+            if (clean(rawUser) === clean(rawCorrect)) {
                 el.classList.add('correct');
                 el.classList.remove('wrong');
                 el.disabled = true;
-                checkAllDone();
+                updateProgress();
             } else {
                 el.classList.add('wrong');
                 setTimeout(() => el.classList.remove('wrong'), 500);
             }
         }
 
-        function checkAllDone() {
-            const allInputs = document.querySelectorAll('.gap-input');
-            const correctInputs = document.querySelectorAll('.gap-input.correct');
+        function updateProgress() {
+            const total = document.querySelectorAll('.gap-input').length;
+            const correct = document.querySelectorAll('.gap-input.correct').length;
             
-            if (allInputs.length === correctInputs.length) {
-                document.getElementById('congrats').style.display = 'block';
+            const percent = (correct / total) * 100;
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('correct-count').innerText = correct;
+
+            if (correct === total) {
+                document.getElementById('congrats').style.display = 'flex';
             }
         }
+
+        // Başlangıçta MathJax ve Progress'i tetikle
+        window.addEventListener('load', () => {
+            switchTab('ispat');
+            updateProgress();
+        });
     </script>
 </body>
 </html>
