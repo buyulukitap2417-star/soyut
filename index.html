@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soyut Matematik: Kavramlar ve İspatlar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+body { scroll-behavior: smooth; }
+.chart-container { position: relative; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; height: 45vh; max-height: 450px; }
+@media (max-width: 768px) { .chart-container { height: 35vh; max-height: 350px; } }
+.glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+.gradient-text { background: linear-gradient(to right, #2dd4bf, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.node-circle { display: flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 9999px; font-weight: bold; }
+</style>
+</head>
+<body class="bg-slate-900 text-slate-200 font-sans antialiased overflow-x-hidden selection:bg-teal-500 selection:text-white">
+
+<!--
+PALETTE: "Cyberpunk/Vibrant Neon" (slate-900 bg, teal-400, fuchsia-500, amber-400, rose-500).
+CONFIRMATION: NEITHER Mermaid JS NOR SVG were used anywhere in the output. All graphics use Canvas (Chart.js/Plotly) or pure HTML/CSS structure.
+PLAN: 
+1. Header/Intro: Abstract Math goals.
+2. Logic (Inform/Compare): Truth tables probability using Bar Chart.
+3. Proof Methods (Organize): HTML/CSS flow diagrams for Direct vs Contradiction.
+4. Set Theory & Functions (Relationships): Cartesian product visualized via 3D Scatter (Plotly Canvas/WebGL).
+5. Counting & Combinatorics (Change/Trends): Exponential/Factorial growth comparison using Line Chart.
+CHOICES:
+- Truth Tables -> Bar Chart (Chart.js): Best to compare binary outcome distributions across different logical connectives. NO SVG.
+- Proof Methods -> HTML/CSS Diagram: Best to show step-by-step logical flow without external diagramming tools. NO SVG.
+- Cartesian Product -> 3D Scatter Plot (Plotly): Best to show relationships in R^3 space visually representing set multiplication. Rendered in WebGL. NO SVG.
+- Combinatorial Growth -> Line Chart (Chart.js): Best to show the extreme trend change between n^2, 2^n, and n! over time/n-values. NO SVG.
+-->
+
+<nav class="sticky top-0 z-50 glass-card border-b border-slate-700 shadow-lg">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex-shrink-0 font-bold text-xl tracking-wider text-teal-400">
+&#8734; SOYUT MATEMATİK
+</div>
+<div class="hidden md:block">
+<div class="ml-10 flex items-baseline space-x-4">
+<a href="#mantik" class="hover:text-teal-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">Mantık</a>
+<a href="#ispatlar" class="hover:text-fuchsia-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">İspatlar</a>
+<a href="#kumeler" class="hover:text-amber-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">Kümeler</a>
+<a href="#sayma" class="hover:text-rose-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">Sayma İlkeleri</a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+
+<header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+<h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
+<span class="gradient-text">Soyut Matematik</span> Dünyası
+</h1>
+<p class="mt-4 max-w-3xl mx-auto text-xl text-slate-400">
+Matematiğin dilini anlama, önermelerin doğruluk değerlerini tartışma ve mantıksal düşünce zincirini kurma sanatına giriş. Öğrenmenin en büyük düşmanı korkudur; gelin sayılar kuramını ve kümeleri görselleştirelim.
+</p>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+
+<section id="mantik" class="scroll-mt-24">
+<div class="mb-10">
+<h2 class="text-3xl font-bold text-teal-400 mb-4">&#10148; 1. Matematiğin Dili ve Önermeler</h2>
+<p class="text-lg text-slate-300">
+Doğru ile yanlıştan biri ve yalnız biri ile nitelenebilen bildiri cümlelerine önerme denir. Karmaşık önermelerin doğruluğu, mantıksal bağlaçlar (ve, veya, ise, ancak ve ancak) yardımıyla belirlenir. Aşağıdaki grafik, rastgele seçilen P ve Q önermeleri için bağlaçların istatistiksel "Doğruluk (D)" üretme potansiyelini göstermektedir.
+</p>
+</div>
+<div class="glass-card rounded-2xl p-6 shadow-2xl">
+<div class="chart-container">
+<canvas id="logicChart"></canvas>
+</div>
+<div class="mt-6 text-center text-sm text-slate-400">
+<p><span class="font-bold text-teal-400">Analiz:</span> "Veya" bağlacı en esnek olanıdır (doğru olma ihtimali yüksektir), "Ve" bağlacı ise en katı olanıdır. "İse" bağlacı sadece hipotez doğru, sonuç yanlış olduğunda çöker.</p>
+</div>
+</div>
+</section>
+
+<section id="ispatlar" class="scroll-mt-24">
+<div class="mb-10">
+<h2 class="text-3xl font-bold text-fuchsia-400 mb-4">&#10148; 2. Matematiksel İspat Yöntemleri</h2>
+<p class="text-lg text-slate-300">
+Bir iddianın doğruluğunu veya yanlışlığını tartışmadan önce o iddianın iyi bir şekilde ifade edilmesi ve kanıtlanması gerekir. Doğrudan ispat her zaman kolay olmayabilir. Çelişki ve Olmayan Ergi gibi yöntemler matematikçinin en güçlü silahlarıdır.
+</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+<div class="glass-card rounded-2xl p-8 shadow-xl border-t-4 border-teal-500">
+<h3 class="text-xl font-bold text-white mb-6 text-center">Çelişki Yöntemi (Reductio ad Absurdum)</h3>
+<div class="flex flex-col items-center space-y-4">
+<div class="bg-slate-800 border border-slate-600 rounded-lg p-4 w-full text-center shadow-inner">
+<span class="text-teal-300 font-mono text-lg">P &#8658; Q İddiası</span>
+</div>
+<div class="text-2xl text-teal-500">&#8595;</div>
+<div class="bg-slate-800 border border-rose-500 rounded-lg p-4 w-full text-center shadow-inner relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-rose-500"></div>
+<span class="text-rose-300 font-bold">Kabul Et: P DOĞRU, Q YANLIŞ</span>
+<br><span class="text-xs text-slate-400">(Olumsuzu Varsay)</span>
+</div>
+<div class="text-2xl text-teal-500">&#8595;</div>
+<div class="bg-slate-800 border border-amber-500 rounded-lg p-4 w-full text-center shadow-inner">
+<span class="text-amber-300">Mantıksal Çıkarımlar Zinciri</span>
+</div>
+<div class="text-2xl text-teal-500">&#8595;</div>
+<div class="bg-rose-900 border-2 border-rose-500 rounded-lg p-4 w-full text-center shadow-[0_0_15px_rgba(244,63,94,0.5)]">
+<span class="text-white font-black text-xl">&#9888; ÇELİŞKİ! (Örn: 1=0)</span>
+<p class="text-sm mt-2 text-rose-200">Varsayım hatalı, iddia DOĞRU.</p>
+</div>
+</div>
+</div>
+
+<div class="glass-card rounded-2xl p-8 shadow-xl border-t-4 border-fuchsia-500">
+<h3 class="text-xl font-bold text-white mb-6 text-center">Olmayan Ergi Yöntemi (Contrapositive)</h3>
+<div class="flex flex-col items-center space-y-4">
+<div class="bg-slate-800 border border-slate-600 rounded-lg p-4 w-full text-center shadow-inner">
+<span class="text-fuchsia-300 font-mono text-lg">P &#8658; Q İddiası</span>
+</div>
+<div class="text-2xl text-fuchsia-500">&#8595;</div>
+<div class="bg-slate-800 border border-fuchsia-500 rounded-lg p-4 w-full text-center shadow-inner">
+<span class="text-fuchsia-300 font-bold">Hedefi Değiştir: (Değil Q) &#8658; (Değil P)</span>
+<br><span class="text-xs text-slate-400">Mantıksal Denklik</span>
+</div>
+<div class="text-2xl text-fuchsia-500">&#8595;</div>
+<div class="bg-slate-800 border border-amber-500 rounded-lg p-4 w-full text-center shadow-inner">
+<span class="text-amber-300">Doğrudan İspat Adımları Uygula</span>
+</div>
+<div class="text-2xl text-fuchsia-500">&#8595;</div>
+<div class="bg-teal-900 border-2 border-teal-500 rounded-lg p-4 w-full text-center shadow-[0_0_15px_rgba(20,184,166,0.5)]">
+<span class="text-white font-black text-xl">&#10004; İSPATLANDI</span>
+<p class="text-sm mt-2 text-teal-200">Ters zıt doğruysa, orijinal de doğrudur.</p>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section id="kumeler" class="scroll-mt-24">
+<div class="mb-10">
+<h2 class="text-3xl font-bold text-amber-400 mb-4">&#10148; 3. Kümeler Kuramı ve Kartezyen Çarpım</h2>
+<p class="text-lg text-slate-300">
+Kümeler, matematiğin yapı taşlarıdır. X ve Y kümelerinin kartezyen çarpımı olan X &times; Y, sıralı ikililerden oluşur. Eğer boyutları artırırsak (X &times; Y &times; Z), verileri 3 boyutlu uzayda koordine edebiliriz. Aşağıdaki etkileşimli grafik, 3 boyutlu sayı kümelerinin kartezyen uzaydaki dağılımını temsil etmektedir.
+</p>
+</div>
+<div class="glass-card rounded-2xl p-6 shadow-2xl">
+<div id="plotlyCanvas" style="width: 100%; height: 500px;"></div>
+<div class="mt-4 text-center text-sm text-slate-400">
+<p><span class="font-bold text-amber-400">Etkileşim:</span> Grafiği fare ile döndürebilir, yakınlaştırabilirsiniz. Her bir nokta, kartezyen çarpım kümesindeki bir (x, y, z) sıralı üçlüsünü temsil eder.</p>
+</div>
+</div>
+</section>
+
+<section id="sayma" class="scroll-mt-24">
+<div class="mb-10">
+<h2 class="text-3xl font-bold text-rose-400 mb-4">&#10148; 4. Sayma İlkeleri ve Kombinatoryal Patlama</h2>
+<p class="text-lg text-slate-300">
+Sonlu kümelerin kardinalitesi (eleman sayısı), altkümelerin sayımı ve fonksiyonların sayımı matematikteki büyüme hızlarını anlamamızı sağlar. n elemanlı bir kümenin altküme sayısı 2&#8319;, permütasyonlarının sayısı ise n! (faktöriyel) olarak hesaplanır.
+</p>
+</div>
+<div class="glass-card rounded-2xl p-6 shadow-2xl mb-8">
+<div class="chart-container" style="height: 50vh; max-height: 500px;">
+<canvas id="growthChart"></canvas>
+</div>
+<div class="mt-6 text-center text-sm text-slate-400">
+<p><span class="font-bold text-rose-400">Analiz:</span> Grafiğin y-ekseni <span class="text-white font-bold border-b border-dashed border-slate-500">logaritmik</span> ölçektedir. Faktöriyel büyümenin (n!) nasıl hızla üssel büyümenin (2&#8319;) ve polinom büyümenin (n&#178;) üzerine çıktığına dikkat edin.</p>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+<div class="glass-card p-6 rounded-xl border border-slate-700 hover:border-teal-500 transition-colors">
+<div class="text-4xl mb-4">&#9993;</div>
+<h4 class="text-lg font-bold text-white mb-2">Görüntü Sayısı</h4>
+<p class="text-3xl font-black text-teal-400">n&#7491;</p>
+<p class="text-sm text-slate-400 mt-2">|X|=m, |Y|=n iken X'ten Y'ye fonksiyon sayısı.</p>
+</div>
+<div class="glass-card p-6 rounded-xl border border-slate-700 hover:border-fuchsia-500 transition-colors">
+<div class="text-4xl mb-4">&#9878;</div>
+<h4 class="text-lg font-bold text-white mb-2">Bire-Bir Fonksiyon</h4>
+<p class="text-3xl font-black text-fuchsia-400">P(n, m)</p>
+<p class="text-sm text-slate-400 mt-2">n(n-1)...(n-m+1) şeklinde azalan faktöriyel.</p>
+</div>
+<div class="glass-card p-6 rounded-xl border border-slate-700 hover:border-rose-500 transition-colors">
+<div class="text-4xl mb-4">&#10045;</div>
+<h4 class="text-lg font-bold text-white mb-2">Alt Kümeler</h4>
+<p class="text-3xl font-black text-rose-400">2&#8319;</p>
+<p class="text-sm text-slate-400 mt-2">Karakteristik fonksiyonlarla P(X) = 2&#8319; ispatı.</p>
+</div>
+</div>
+</section>
+
+</main>
+
+<footer class="border-t border-slate-800 mt-20 py-10 text-center">
+<p class="text-slate-500 text-sm">Soyut Matematik SPA İnfografik &bull; Tüm mantıksal kurgular Canvas üzerinde işlenmiştir.</p>
+</footer>
+
+<script>
+const formatLabels=e=>e.map(e=>{if(e.length<=16)return e;let r=e.split(" "),t=[],n="";return r.forEach(e=>{(n+e).length>16?(n&&t.push(n.trim()),n=e+" "):n+=e+" "}),n&&t.push(n.trim()),t});
+const tooltipOptions={plugins:{tooltip:{callbacks:{title:e=>{let r=e[0],t=r.chart.data.labels[r.dataIndex];return Array.isArray(t)?t.join(" "):t},label:e=>e.dataset.label+": "+e.raw}}}};
+
+const logicCtx = document.getElementById('logicChart').getContext('2d');
+new Chart(logicCtx, {
+    type: 'bar',
+    data: {
+        labels: formatLabels(['P ve Q (Kesişim)', 'P veya Q (Birleşim)', 'P ise Q (Gerektirme)', 'P ancak ve ancak Q (Denklik)']),
+        datasets: [{
+            label: 'Doğru (D) Çıkma İhtimali (%)',
+            data: [25, 75, 75, 50],
+            backgroundColor: [
+                'rgba(244, 63, 94, 0.8)',
+                'rgba(45, 212, 191, 0.8)',
+                'rgba(168, 85, 247, 0.8)',
+                'rgba(251, 191, 36, 0.8)'
+            ],
+            borderColor: [
+                'rgb(244, 63, 94)',
+                'rgb(45, 212, 191)',
+                'rgb(168, 85, 247)',
+                'rgb(251, 191, 36)'
+            ],
+            borderWidth: 2,
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#cbd5e1' } },
+            x: { grid: { display: false }, ticks: { color: '#cbd5e1' } }
+        },
+        plugins: {
+            legend: { labels: { color: '#cbd5e1' } },
+            tooltip: tooltipOptions.plugins.tooltip
+        }
+    }
+});
+
+let x = [], y = [], z = [], c = [];
+for(let i=1; i<=10; i+=1.5) {
+    for(let j=1; j<=10; j+=1.5) {
+        for(let k=1; k<=10; k+=1.5) {
+            if(Math.random() > 0.6) {
+                x.push(i); y.push(j); z.push(k);
+                c.push(i*j*k);
+            }
+        }
+    }
+}
+
+const trace1 = {
+    x: x, y: y, z: z,
+    mode: 'markers',
+    marker: {
+        size: 8,
+        color: c,
+        colorscale: 'Picnic',
+        opacity: 0.8,
+        line: { width: 1, color: '#1e293b' }
+    },
+    type: 'scatter3d'
+};
+
+const layout = {
+    margin: { l: 0, r: 0, b: 0, t: 0 },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    scene: {
+        xaxis: { title: 'X Kümesi', gridcolor: 'rgba(255,255,255,0.1)', backgroundcolor: 'rgba(0,0,0,0)' },
+        yaxis: { title: 'Y Kümesi', gridcolor: 'rgba(255,255,255,0.1)', backgroundcolor: 'rgba(0,0,0,0)' },
+        zaxis: { title: 'Z Kümesi', gridcolor: 'rgba(255,255,255,0.1)', backgroundcolor: 'rgba(0,0,0,0)' }
+    }
+};
+
+Plotly.newPlot('plotlyCanvas', [trace1], layout, {displayModeBar: false, responsive: true});
+
+const growthCtx = document.getElementById('growthChart').getContext('2d');
+const fact = n => n<=1 ? 1 : n * fact(n-1);
+const nVals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const nData = nVals.map(n => n);
+const n2Data = nVals.map(n => n*n);
+const n2nData = nVals.map(n => Math.pow(2, n));
+const factData = nVals.map(n => fact(n));
+
+new Chart(growthCtx, {
+    type: 'line',
+    data: {
+        labels: nVals,
+        datasets: [
+            { label: 'n (Doğrusal)', data: nData, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 2, tension: 0.4 },
+            { label: 'n² (Polinom)', data: n2Data, borderColor: '#38bdf8', backgroundColor: '#38bdf8', borderWidth: 2, tension: 0.4 },
+            { label: '2ⁿ (Alt Küme Sayısı)', data: n2nData, borderColor: '#a855f7', backgroundColor: '#a855f7', borderWidth: 3, tension: 0.4 },
+            { label: 'n! (Permütasyon)', data: factData, borderColor: '#f43f5e', backgroundColor: '#f43f5e', borderWidth: 4, tension: 0.4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { 
+                type: 'logarithmic',
+                grid: { color: 'rgba(255,255,255,0.1)' },
+                ticks: { color: '#cbd5e1', callback: function(value) { return Number(value.toString()); } }
+            },
+            x: { 
+                grid: { color: 'rgba(255,255,255,0.1)' },
+                ticks: { color: '#cbd5e1' },
+                title: { display: true, text: 'n Değeri (Eleman Sayısı)', color: '#94a3b8' }
+            }
+        },
+        plugins: {
+            legend: { labels: { color: '#cbd5e1', usePointStyle: true, boxWidth: 8 } },
+            tooltip: tooltipOptions.plugins.tooltip
+        }
+    }
+});
+</script>
+</body>
+</html>
