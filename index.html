@@ -3,321 +3,298 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Soyut Matematik: Kavramlar ve İspatlar</title>
+<title>Soyut Matematik: Adım Adım İspat Rehberi</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
-body { scroll-behavior: smooth; }
-.chart-container { position: relative; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; height: 45vh; max-height: 450px; }
-@media (max-width: 768px) { .chart-container { height: 35vh; max-height: 350px; } }
-.glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-.gradient-text { background: linear-gradient(to right, #2dd4bf, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.node-circle { display: flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 9999px; font-weight: bold; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+.accordion-open .accordion-content { max-height: 2000px; transition: max-height 0.5s ease-in; }
+.chart-container { position: relative; width: 100%; max-width: 800px; height: 350px; margin: auto; }
+.neon-border { box-shadow: 0 0 15px rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); }
+.math-bg { background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0); background-size: 40px 40px; }
 </style>
 </head>
-<body class="bg-slate-900 text-slate-200 font-sans antialiased overflow-x-hidden selection:bg-teal-500 selection:text-white">
+<body class="bg-slate-950 text-slate-200 math-bg min-h-screen">
 
-<!--
-PALETTE: "Cyberpunk/Vibrant Neon" (slate-900 bg, teal-400, fuchsia-500, amber-400, rose-500).
-CONFIRMATION: NEITHER Mermaid JS NOR SVG were used anywhere in the output. All graphics use Canvas (Chart.js/Plotly) or pure HTML/CSS structure.
+<!-- 
+CONFIRMATION: NEITHER Mermaid JS NOR SVG were used.
 PLAN: 
-1. Header/Intro: Abstract Math goals.
-2. Logic (Inform/Compare): Truth tables probability using Bar Chart.
-3. Proof Methods (Organize): HTML/CSS flow diagrams for Direct vs Contradiction.
-4. Set Theory & Functions (Relationships): Cartesian product visualized via 3D Scatter (Plotly Canvas/WebGL).
-5. Counting & Combinatorics (Change/Trends): Exponential/Factorial growth comparison using Line Chart.
-CHOICES:
-- Truth Tables -> Bar Chart (Chart.js): Best to compare binary outcome distributions across different logical connectives. NO SVG.
-- Proof Methods -> HTML/CSS Diagram: Best to show step-by-step logical flow without external diagramming tools. NO SVG.
-- Cartesian Product -> 3D Scatter Plot (Plotly): Best to show relationships in R^3 space visually representing set multiplication. Rendered in WebGL. NO SVG.
-- Combinatorial Growth -> Line Chart (Chart.js): Best to show the extreme trend change between n^2, 2^n, and n! over time/n-values. NO SVG.
+1. Interactive Accordion Lessons: Step-by-step logic, proof, sets, functions.
+2. Visual Analytics: Growth rates and logic distributions via Chart.js.
+3. AI Tutor Integration: Using Gemini API to answer specific user questions about math.
 -->
 
-<nav class="sticky top-0 z-50 glass-card border-b border-slate-700 shadow-lg">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="flex items-center justify-between h-16">
-<div class="flex-shrink-0 font-bold text-xl tracking-wider text-teal-400">
-&#8734; SOYUT MATEMATİK
-</div>
-<div class="hidden md:block">
-<div class="ml-10 flex items-baseline space-x-4">
-<a href="#mantik" class="hover:text-teal-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">Mantık</a>
-<a href="#ispatlar" class="hover:text-fuchsia-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">İspatlar</a>
-<a href="#kumeler" class="hover:text-amber-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">Kümeler</a>
-<a href="#sayma" class="hover:text-rose-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">Sayma İlkeleri</a>
-</div>
-</div>
-</div>
-</div>
+<nav class="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="font-black text-2xl tracking-tighter text-teal-400">MATH.OS</div>
+        <div class="space-x-6 text-sm font-bold uppercase tracking-widest hidden md:flex">
+            <a href="#dersler" class="hover:text-teal-400 transition">Dersler</a>
+            <a href="#gorsel" class="hover:text-teal-400 transition">Grafikler</a>
+            <a href="#ai-hoca" class="bg-teal-500 text-slate-950 px-4 py-1 rounded-full hover:bg-teal-400 transition">AI Hoca'ya Sor</a>
+        </div>
+    </div>
 </nav>
 
-<header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-<h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
-<span class="gradient-text">Soyut Matematik</span> Dünyası
-</h1>
-<p class="mt-4 max-w-3xl mx-auto text-xl text-slate-400">
-Matematiğin dilini anlama, önermelerin doğruluk değerlerini tartışma ve mantıksal düşünce zincirini kurma sanatına giriş. Öğrenmenin en büyük düşmanı korkudur; gelin sayılar kuramını ve kümeleri görselleştirelim.
-</p>
+<header class="pt-32 pb-16 px-4 text-center">
+    <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Soyut Matematiği <br><span class="text-teal-400">Anlamayan Kalmasın</span></h1>
+    <p class="text-slate-400 max-w-2xl mx-auto text-lg">Karmaşık ispatlar, kafa karıştıran kümeler ve korkutucu semboller... Hepsini en basit, en "salağa anlatır gibi" haliyle parçalara ayırdık.</p>
 </header>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+<main id="dersler" class="max-w-4xl mx-auto px-4 space-y-6 pb-24">
 
-<section id="mantik" class="scroll-mt-24">
-<div class="mb-10">
-<h2 class="text-3xl font-bold text-teal-400 mb-4">&#10148; 1. Matematiğin Dili ve Önermeler</h2>
-<p class="text-lg text-slate-300">
-Doğru ile yanlıştan biri ve yalnız biri ile nitelenebilen bildiri cümlelerine önerme denir. Karmaşık önermelerin doğruluğu, mantıksal bağlaçlar (ve, veya, ise, ancak ve ancak) yardımıyla belirlenir. Aşağıdaki grafik, rastgele seçilen P ve Q önermeleri için bağlaçların istatistiksel "Doğruluk (D)" üretme potansiyelini göstermektedir.
-</p>
-</div>
-<div class="glass-card rounded-2xl p-6 shadow-2xl">
-<div class="chart-container">
-<canvas id="logicChart"></canvas>
-</div>
-<div class="mt-6 text-center text-sm text-slate-400">
-<p><span class="font-bold text-teal-400">Analiz:</span> "Veya" bağlacı en esnek olanıdır (doğru olma ihtimali yüksektir), "Ve" bağlacı ise en katı olanıdır. "İse" bağlacı sadece hipotez doğru, sonuç yanlış olduğunda çöker.</p>
-</div>
-</div>
-</section>
+    <!-- MODÜL 1: MANTIK -->
+    <div class="accordion-item bg-slate-900 rounded-2xl neon-border overflow-hidden">
+        <button onclick="toggleAccordion(this)" class="w-full p-6 text-left flex justify-between items-center hover:bg-slate-800 transition">
+            <span class="text-xl font-bold flex items-center"><span class="bg-teal-500 text-slate-950 w-8 h-8 rounded-lg flex items-center justify-center mr-4 text-sm">01</span> Mantık: Matematiğin Grameri</span>
+            <span class="icon transform transition-transform text-teal-400">&#9660;</span>
+        </button>
+        <div class="accordion-content">
+            <div class="p-6 border-t border-slate-800 space-y-4">
+                <p class="text-slate-300">Önerme dediğin şey çok basittir: Ya DOĞRU (1) ya YANLIŞ (0) olan bir cümledir. "Bugün hava güzel" bir önerme değildir (kime göre?), ama "2+2=5" bir önermedir (yanlış olsa bile!).</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-800 p-4 rounded-xl">
+                        <h4 class="font-bold text-teal-400 mb-2">P ve Q (&#8743;)</h4>
+                        <p class="text-sm">Annem "Hem ekmek hem süt al" dedi. Eğer birini almazsan azar işitirsin. İkisinin de doğru olması şart!</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl">
+                        <h4 class="font-bold text-fuchsia-400 mb-2">P veya Q (&#8744;)</h4>
+                        <p class="text-sm">"Çay veya kahve içer misin?" dedi. Birini içsen de olur, ikisini içsen de. Sadece ikisini de reddedersen ayıp olur.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<section id="ispatlar" class="scroll-mt-24">
-<div class="mb-10">
-<h2 class="text-3xl font-bold text-fuchsia-400 mb-4">&#10148; 2. Matematiksel İspat Yöntemleri</h2>
-<p class="text-lg text-slate-300">
-Bir iddianın doğruluğunu veya yanlışlığını tartışmadan önce o iddianın iyi bir şekilde ifade edilmesi ve kanıtlanması gerekir. Doğrudan ispat her zaman kolay olmayabilir. Çelişki ve Olmayan Ergi gibi yöntemler matematikçinin en güçlü silahlarıdır.
-</p>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- MODÜL 2: İSPAT YÖNTEMLERİ -->
+    <div class="accordion-item bg-slate-900 rounded-2xl neon-border overflow-hidden">
+        <button onclick="toggleAccordion(this)" class="w-full p-6 text-left flex justify-between items-center hover:bg-slate-800 transition">
+            <span class="text-xl font-bold flex items-center"><span class="bg-fuchsia-500 text-slate-950 w-8 h-8 rounded-lg flex items-center justify-center mr-4 text-sm">02</span> İspat: Nasıl Kanıtlarız?</span>
+            <span class="icon transform transition-transform text-fuchsia-400">&#9660;</span>
+        </button>
+        <div class="accordion-content">
+            <div class="p-6 border-t border-slate-800 space-y-6">
+                <div>
+                    <h4 class="font-bold text-white mb-2 underline decoration-fuchsia-500">1. Çelişki Yöntemi</h4>
+                    <p class="text-slate-400 italic mb-2">"Tersini düşün, saçmala, gerçeğe dön."</p>
+                    <p class="text-sm">Bir şeyin doğru olduğunu ispatlamak için "Hadi yanlış olduğunu kabul edelim" dersin. Sonra öyle bir işlem yaparsın ki karşına "1=0" gibi bir saçmalık çıkar. "Ha, demek ki yanlış kabul etmek hataymış, o zaman doğruymuş" dersin.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-2 underline decoration-teal-500">2. Tümevarım (Domino Etkisi)</h4>
+                    <p class="text-sm">Milyarlarca sayıyı tek tek kontrol edemezsin. Şunu yaparsın:<br>
+                    1. İlk sayı ($n=1$) için doğru mu? Evet.<br>
+                    2. Eğer herhangi bir sayı ($k$) için doğruysa, bir sonraki ($k+1$) de doğru olur mu? Evet.<br>
+                    O zaman domino taşları gibi hepsi devrilir!</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="glass-card rounded-2xl p-8 shadow-xl border-t-4 border-teal-500">
-<h3 class="text-xl font-bold text-white mb-6 text-center">Çelişki Yöntemi (Reductio ad Absurdum)</h3>
-<div class="flex flex-col items-center space-y-4">
-<div class="bg-slate-800 border border-slate-600 rounded-lg p-4 w-full text-center shadow-inner">
-<span class="text-teal-300 font-mono text-lg">P &#8658; Q İddiası</span>
-</div>
-<div class="text-2xl text-teal-500">&#8595;</div>
-<div class="bg-slate-800 border border-rose-500 rounded-lg p-4 w-full text-center shadow-inner relative overflow-hidden">
-<div class="absolute top-0 left-0 w-full h-1 bg-rose-500"></div>
-<span class="text-rose-300 font-bold">Kabul Et: P DOĞRU, Q YANLIŞ</span>
-<br><span class="text-xs text-slate-400">(Olumsuzu Varsay)</span>
-</div>
-<div class="text-2xl text-teal-500">&#8595;</div>
-<div class="bg-slate-800 border border-amber-500 rounded-lg p-4 w-full text-center shadow-inner">
-<span class="text-amber-300">Mantıksal Çıkarımlar Zinciri</span>
-</div>
-<div class="text-2xl text-teal-500">&#8595;</div>
-<div class="bg-rose-900 border-2 border-rose-500 rounded-lg p-4 w-full text-center shadow-[0_0_15px_rgba(244,63,94,0.5)]">
-<span class="text-white font-black text-xl">&#9888; ÇELİŞKİ! (Örn: 1=0)</span>
-<p class="text-sm mt-2 text-rose-200">Varsayım hatalı, iddia DOĞRU.</p>
-</div>
-</div>
-</div>
+    <!-- MODÜL 3: KÜMELER -->
+    <div class="accordion-item bg-slate-900 rounded-2xl neon-border overflow-hidden">
+        <button onclick="toggleAccordion(this)" class="w-full p-6 text-left flex justify-between items-center hover:bg-slate-800 transition">
+            <span class="text-xl font-bold flex items-center"><span class="bg-amber-500 text-slate-950 w-8 h-8 rounded-lg flex items-center justify-center mr-4 text-sm">03</span> Kümeler ve Kartezyen Çarpım</span>
+            <span class="icon transform transition-transform text-amber-400">&#9660;</span>
+        </button>
+        <div class="accordion-content">
+            <div class="p-6 border-t border-slate-800">
+                <p class="text-slate-300 mb-4">Küme sadece bir "torba" dır. Kartezyen çarpım ($A \times B$) ise iki torbadaki elemanları birbirleriyle eşleştirmektir. </p>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-amber-300">
+                    A = {Gömlek, Pantolon} <br>
+                    B = {Mavi, Siyah} <br>
+                    A x B = {(Gömlek, Mavi), (Gömlek, Siyah), (Pantolon, Mavi), (Pantolon, Siyah)}
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="glass-card rounded-2xl p-8 shadow-xl border-t-4 border-fuchsia-500">
-<h3 class="text-xl font-bold text-white mb-6 text-center">Olmayan Ergi Yöntemi (Contrapositive)</h3>
-<div class="flex flex-col items-center space-y-4">
-<div class="bg-slate-800 border border-slate-600 rounded-lg p-4 w-full text-center shadow-inner">
-<span class="text-fuchsia-300 font-mono text-lg">P &#8658; Q İddiası</span>
-</div>
-<div class="text-2xl text-fuchsia-500">&#8595;</div>
-<div class="bg-slate-800 border border-fuchsia-500 rounded-lg p-4 w-full text-center shadow-inner">
-<span class="text-fuchsia-300 font-bold">Hedefi Değiştir: (Değil Q) &#8658; (Değil P)</span>
-<br><span class="text-xs text-slate-400">Mantıksal Denklik</span>
-</div>
-<div class="text-2xl text-fuchsia-500">&#8595;</div>
-<div class="bg-slate-800 border border-amber-500 rounded-lg p-4 w-full text-center shadow-inner">
-<span class="text-amber-300">Doğrudan İspat Adımları Uygula</span>
-</div>
-<div class="text-2xl text-fuchsia-500">&#8595;</div>
-<div class="bg-teal-900 border-2 border-teal-500 rounded-lg p-4 w-full text-center shadow-[0_0_15px_rgba(20,184,166,0.5)]">
-<span class="text-white font-black text-xl">&#10004; İSPATLANDI</span>
-<p class="text-sm mt-2 text-teal-200">Ters zıt doğruysa, orijinal de doğrudur.</p>
-</div>
-</div>
-</div>
+    <!-- GRAFİK BÖLÜMÜ -->
+    <section id="gorsel" class="py-12 space-y-12">
+        <div class="text-center">
+            <h2 class="text-2xl font-bold text-white mb-2">Büyüme Hızlarını Görselleştirelim</h2>
+            <p class="text-sm text-slate-400">Soyut matematikte sayıların ne kadar hızlı büyüdüğünü (n!, 2^n vb.) anlamak ispatlar için kritiktir.</p>
+        </div>
+        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-2xl">
+            <div class="chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+    </section>
 
-</div>
-</section>
+    <!-- AI TUTOR BÖLÜMÜ -->
+    <section id="ai-hoca" class="py-12">
+        <div class="bg-teal-950/20 border-2 border-teal-500/30 rounded-3xl p-8 shadow-[0_0_50px_rgba(20,184,166,0.1)]">
+            <div class="flex items-center mb-6">
+                <div class="bg-teal-500 p-3 rounded-2xl mr-4 shadow-lg shadow-teal-500/20">
+                    <span class="text-2xl text-slate-900 font-black">?</span>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Anlamadığın Bir Yer mi Var?</h2>
+                    <p class="text-teal-400 text-sm">Ders notlarından bir örnek yaz veya genel bir soru sor, AI Matematik Hocası senin için açıklasın.</p>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <textarea id="userInput" placeholder="Örn: 'Çelişki yöntemiyle kök 2'nin irrasyonel olduğunu nasıl ispatlarız?'" class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 focus:outline-none focus:border-teal-500 min-h-[120px] transition-all"></textarea>
+                <button onclick="askGemini()" id="askBtn" class="w-full bg-teal-500 text-slate-950 font-bold py-4 rounded-2xl hover:bg-teal-400 transition transform active:scale-95 flex items-center justify-center">
+                    Hocaya Sor
+                </button>
+            </div>
 
-<section id="kumeler" class="scroll-mt-24">
-<div class="mb-10">
-<h2 class="text-3xl font-bold text-amber-400 mb-4">&#10148; 3. Kümeler Kuramı ve Kartezyen Çarpım</h2>
-<p class="text-lg text-slate-300">
-Kümeler, matematiğin yapı taşlarıdır. X ve Y kümelerinin kartezyen çarpımı olan X &times; Y, sıralı ikililerden oluşur. Eğer boyutları artırırsak (X &times; Y &times; Z), verileri 3 boyutlu uzayda koordine edebiliriz. Aşağıdaki etkileşimli grafik, 3 boyutlu sayı kümelerinin kartezyen uzaydaki dağılımını temsil etmektedir.
-</p>
-</div>
-<div class="glass-card rounded-2xl p-6 shadow-2xl">
-<div id="plotlyCanvas" style="width: 100%; height: 500px;"></div>
-<div class="mt-4 text-center text-sm text-slate-400">
-<p><span class="font-bold text-amber-400">Etkileşim:</span> Grafiği fare ile döndürebilir, yakınlaştırabilirsiniz. Her bir nokta, kartezyen çarpım kümesindeki bir (x, y, z) sıralı üçlüsünü temsil eder.</p>
-</div>
-</div>
-</section>
-
-<section id="sayma" class="scroll-mt-24">
-<div class="mb-10">
-<h2 class="text-3xl font-bold text-rose-400 mb-4">&#10148; 4. Sayma İlkeleri ve Kombinatoryal Patlama</h2>
-<p class="text-lg text-slate-300">
-Sonlu kümelerin kardinalitesi (eleman sayısı), altkümelerin sayımı ve fonksiyonların sayımı matematikteki büyüme hızlarını anlamamızı sağlar. n elemanlı bir kümenin altküme sayısı 2&#8319;, permütasyonlarının sayısı ise n! (faktöriyel) olarak hesaplanır.
-</p>
-</div>
-<div class="glass-card rounded-2xl p-6 shadow-2xl mb-8">
-<div class="chart-container" style="height: 50vh; max-height: 500px;">
-<canvas id="growthChart"></canvas>
-</div>
-<div class="mt-6 text-center text-sm text-slate-400">
-<p><span class="font-bold text-rose-400">Analiz:</span> Grafiğin y-ekseni <span class="text-white font-bold border-b border-dashed border-slate-500">logaritmik</span> ölçektedir. Faktöriyel büyümenin (n!) nasıl hızla üssel büyümenin (2&#8319;) ve polinom büyümenin (n&#178;) üzerine çıktığına dikkat edin.</p>
-</div>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-<div class="glass-card p-6 rounded-xl border border-slate-700 hover:border-teal-500 transition-colors">
-<div class="text-4xl mb-4">&#9993;</div>
-<h4 class="text-lg font-bold text-white mb-2">Görüntü Sayısı</h4>
-<p class="text-3xl font-black text-teal-400">n&#7491;</p>
-<p class="text-sm text-slate-400 mt-2">|X|=m, |Y|=n iken X'ten Y'ye fonksiyon sayısı.</p>
-</div>
-<div class="glass-card p-6 rounded-xl border border-slate-700 hover:border-fuchsia-500 transition-colors">
-<div class="text-4xl mb-4">&#9878;</div>
-<h4 class="text-lg font-bold text-white mb-2">Bire-Bir Fonksiyon</h4>
-<p class="text-3xl font-black text-fuchsia-400">P(n, m)</p>
-<p class="text-sm text-slate-400 mt-2">n(n-1)...(n-m+1) şeklinde azalan faktöriyel.</p>
-</div>
-<div class="glass-card p-6 rounded-xl border border-slate-700 hover:border-rose-500 transition-colors">
-<div class="text-4xl mb-4">&#10045;</div>
-<h4 class="text-lg font-bold text-white mb-2">Alt Kümeler</h4>
-<p class="text-3xl font-black text-rose-400">2&#8319;</p>
-<p class="text-sm text-slate-400 mt-2">Karakteristik fonksiyonlarla P(X) = 2&#8319; ispatı.</p>
-</div>
-</div>
-</section>
+            <div id="aiResponseContainer" class="mt-8 hidden bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
+                <div class="flex items-center mb-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-teal-500">AI Matematik Hocası Cevabı:</span>
+                </div>
+                <div id="aiResponse" class="text-slate-300 leading-relaxed whitespace-pre-wrap"></div>
+            </div>
+            <div id="loading" class="mt-4 hidden text-center py-4">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
+                <p class="text-xs text-slate-500 mt-2">Düşünüyorum...</p>
+            </div>
+        </div>
+    </section>
 
 </main>
 
-<footer class="border-t border-slate-800 mt-20 py-10 text-center">
-<p class="text-slate-500 text-sm">Soyut Matematik SPA İnfografik &bull; Tüm mantıksal kurgular Canvas üzerinde işlenmiştir.</p>
+<footer class="py-12 border-t border-slate-900 text-center text-slate-600 text-xs">
+    <p>&copy; 2024 Soyut Matematik Akademisi - Tek Dosya Uygulaması</p>
 </footer>
 
 <script>
-const formatLabels=e=>e.map(e=>{if(e.length<=16)return e;let r=e.split(" "),t=[],n="";return r.forEach(e=>{(n+e).length>16?(n&&t.push(n.trim()),n=e+" "):n+=e+" "}),n&&t.push(n.trim()),t});
-const tooltipOptions={plugins:{tooltip:{callbacks:{title:e=>{let r=e[0],t=r.chart.data.labels[r.dataIndex];return Array.isArray(t)?t.join(" "):t},label:e=>e.dataset.label+": "+e.raw}}}};
+// --- UI MANTIĞI ---
+function toggleAccordion(btn) {
+    const item = btn.parentElement;
+    const icon = btn.querySelector('.icon');
+    
+    // Diğerlerini kapat
+    document.querySelectorAll('.accordion-item').forEach(el => {
+        if (el !== item) el.classList.remove('accordion-open');
+    });
 
-const logicCtx = document.getElementById('logicChart').getContext('2d');
-new Chart(logicCtx, {
-    type: 'bar',
-    data: {
-        labels: formatLabels(['P ve Q (Kesişim)', 'P veya Q (Birleşim)', 'P ise Q (Gerektirme)', 'P ancak ve ancak Q (Denklik)']),
-        datasets: [{
-            label: 'Doğru (D) Çıkma İhtimali (%)',
-            data: [25, 75, 75, 50],
-            backgroundColor: [
-                'rgba(244, 63, 94, 0.8)',
-                'rgba(45, 212, 191, 0.8)',
-                'rgba(168, 85, 247, 0.8)',
-                'rgba(251, 191, 36, 0.8)'
-            ],
-            borderColor: [
-                'rgb(244, 63, 94)',
-                'rgb(45, 212, 191)',
-                'rgb(168, 85, 247)',
-                'rgb(251, 191, 36)'
-            ],
-            borderWidth: 2,
-            borderRadius: 6
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#cbd5e1' } },
-            x: { grid: { display: false }, ticks: { color: '#cbd5e1' } }
-        },
-        plugins: {
-            legend: { labels: { color: '#cbd5e1' } },
-            tooltip: tooltipOptions.plugins.tooltip
-        }
-    }
-});
-
-let x = [], y = [], z = [], c = [];
-for(let i=1; i<=10; i+=1.5) {
-    for(let j=1; j<=10; j+=1.5) {
-        for(let k=1; k<=10; k+=1.5) {
-            if(Math.random() > 0.6) {
-                x.push(i); y.push(j); z.push(k);
-                c.push(i*j*k);
-            }
-        }
+    item.classList.toggle('accordion-open');
+    
+    // İkonu döndür
+    if (item.classList.contains('accordion-open')) {
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        icon.style.transform = 'rotate(0deg)';
     }
 }
 
-const trace1 = {
-    x: x, y: y, z: z,
-    mode: 'markers',
-    marker: {
-        size: 8,
-        color: c,
-        colorscale: 'Picnic',
-        opacity: 0.8,
-        line: { width: 1, color: '#1e293b' }
-    },
-    type: 'scatter3d'
-};
+// --- GRAFİK MANTIĞI ---
+const formatLabels = e => e.map(e => {
+    if (e.length <= 16) return e;
+    let r = e.split(" "), t = [], n = "";
+    return r.forEach(e => {
+        (n + e).length > 16 ? (n && t.push(n.trim()), n = e + " ") : n += e + " "
+    }), n && t.push(n.trim()), t
+});
 
-const layout = {
-    margin: { l: 0, r: 0, b: 0, t: 0 },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    scene: {
-        xaxis: { title: 'X Kümesi', gridcolor: 'rgba(255,255,255,0.1)', backgroundcolor: 'rgba(0,0,0,0)' },
-        yaxis: { title: 'Y Kümesi', gridcolor: 'rgba(255,255,255,0.1)', backgroundcolor: 'rgba(0,0,0,0)' },
-        zaxis: { title: 'Z Kümesi', gridcolor: 'rgba(255,255,255,0.1)', backgroundcolor: 'rgba(0,0,0,0)' }
-    }
-};
+window.onload = function() {
+    const ctx = document.getElementById('growthChart').getContext('2d');
+    const nVals = [1, 2, 3, 4, 5];
+    const nFact = [1, 2, 6, 24, 120];
+    const nExp = [2, 4, 8, 16, 32];
+    const nSq = [1, 4, 9, 16, 25];
 
-Plotly.newPlot('plotlyCanvas', [trace1], layout, {displayModeBar: false, responsive: true});
-
-const growthCtx = document.getElementById('growthChart').getContext('2d');
-const fact = n => n<=1 ? 1 : n * fact(n-1);
-const nVals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const nData = nVals.map(n => n);
-const n2Data = nVals.map(n => n*n);
-const n2nData = nVals.map(n => Math.pow(2, n));
-const factData = nVals.map(n => fact(n));
-
-new Chart(growthCtx, {
-    type: 'line',
-    data: {
-        labels: nVals,
-        datasets: [
-            { label: 'n (Doğrusal)', data: nData, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 2, tension: 0.4 },
-            { label: 'n² (Polinom)', data: n2Data, borderColor: '#38bdf8', backgroundColor: '#38bdf8', borderWidth: 2, tension: 0.4 },
-            { label: '2ⁿ (Alt Küme Sayısı)', data: n2nData, borderColor: '#a855f7', backgroundColor: '#a855f7', borderWidth: 3, tension: 0.4 },
-            { label: 'n! (Permütasyon)', data: factData, borderColor: '#f43f5e', backgroundColor: '#f43f5e', borderWidth: 4, tension: 0.4 }
-        ]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: { 
-                type: 'logarithmic',
-                grid: { color: 'rgba(255,255,255,0.1)' },
-                ticks: { color: '#cbd5e1', callback: function(value) { return Number(value.toString()); } }
-            },
-            x: { 
-                grid: { color: 'rgba(255,255,255,0.1)' },
-                ticks: { color: '#cbd5e1' },
-                title: { display: true, text: 'n Değeri (Eleman Sayısı)', color: '#94a3b8' }
-            }
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: nVals,
+            datasets: [
+                { label: 'n! (Permütasyon)', data: nFact, borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.1)', fill: true, tension: 0.3 },
+                { label: '2^n (Alt Küme Sayısı)', data: nExp, borderColor: '#2dd4bf', tension: 0.3 },
+                { label: 'n^2 (Polinom Büyüme)', data: nSq, borderColor: '#fbbf24', borderDash: [5, 5], tension: 0.3 }
+            ]
         },
-        plugins: {
-            legend: { labels: { color: '#cbd5e1', usePointStyle: true, boxWidth: 8 } },
-            tooltip: tooltipOptions.plugins.tooltip
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#94a3b8', font: { weight: 'bold' } } },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            return Array.isArray(label) ? label.join(' ') : label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
+                x: { grid: { display: false }, ticks: { color: '#64748b' } }
+            }
+        }
+    });
+};
+
+// --- GEMINI AI MANTIĞI ---
+const apiKey = ""; // API anahtarı çalışma ortamı tarafından sağlanacaktır.
+
+async function askGemini() {
+    const input = document.getElementById('userInput').value;
+    const btn = document.getElementById('askBtn');
+    const responseContainer = document.getElementById('aiResponseContainer');
+    const responseText = document.getElementById('aiResponse');
+    const loading = document.getElementById('loading');
+
+    if (!input.trim()) return;
+
+    // UI Durumu
+    btn.disabled = true;
+    loading.classList.remove('hidden');
+    responseContainer.classList.add('hidden');
+
+    const systemPrompt = `Sen uzman bir Soyut Matematik hocasısın. Görevin, karmaşık matematiksel kavramları 'en basit haliyle' ve 'adım adım' açıklamaktır. Cevaplarını verirken öğrencinin moralini bozmadan, teşvik edici bir ton kullan. İspatları anlatırken her adımın neden yapıldığını söyle. Yanıtlarını markdown formatında ver ama HTML/SVG/Resim kullanma.`;
+
+    const payload = {
+        contents: [{ parts: [{ text: input }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] }
+    };
+
+    let retries = 0;
+    const maxRetries = 5;
+
+    async function makeRequest() {
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('API hatası');
+            const result = await response.json();
+            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            
+            if (text) {
+                responseText.innerText = text;
+                responseContainer.classList.remove('hidden');
+                loading.classList.add('hidden');
+                btn.disabled = false;
+                // Scroll to answer
+                responseContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        } catch (error) {
+            if (retries < maxRetries) {
+                retries++;
+                const delay = Math.pow(2, retries) * 500;
+                setTimeout(makeRequest, delay);
+            } else {
+                responseText.innerText = "Şu an cevap veremiyorum, lütfen daha sonra tekrar dene.";
+                responseContainer.classList.remove('hidden');
+                loading.classList.add('hidden');
+                btn.disabled = false;
+            }
         }
     }
-});
+
+    makeRequest();
+}
 </script>
 </body>
 </html>
